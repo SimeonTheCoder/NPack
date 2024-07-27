@@ -2,10 +2,32 @@ package npack;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.Scanner;
 
 public class PackageManager {
     public static void get(String[] args) throws IOException {
+        URL url = new URL("https://raw.githubusercontent.com/SimeonTheCoder/NDepo/main/libs.nlb");
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("GET");
+
+        Scanner libScanner = new Scanner(connection.getInputStream());
+
+        String user = "", repoName = "";
+
+        while(libScanner.hasNextLine()) {
+            String line = libScanner.nextLine();
+            String[] tokens = line.split(" ");
+
+            if(tokens[0].equals(args[1])) {
+                repoName = tokens[1];
+                user = tokens[2];
+
+                break;
+            }
+        }
+
         File theDir = new File(System.getProperty("user.dir") + "/build");
         if (!theDir.exists()) {
             theDir.mkdirs();
@@ -13,8 +35,8 @@ public class PackageManager {
 
         String repo = String.format(
                 "https://raw.githubusercontent.com/%s/%s/main/package.nlb",
-                args[1],
-                args[2]
+                user,
+                repoName
         );
 
         System.out.println("Downloading package.nlb from: " + repo);
@@ -28,8 +50,8 @@ public class PackageManager {
 
             String fileLocation = String.format(
                     "https://raw.githubusercontent.com/%s/%s/main/%s.class",
-                    args[1],
-                    args[2],
+                    user,
+                    repoName,
                     line
             );
 
